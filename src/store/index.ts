@@ -1,2 +1,2 @@
 export { useStore } from "./store";
-export type { ConnectionStatus } from "./store";
+export type { ConnectionStatus, TrendingSort } from "./store";
