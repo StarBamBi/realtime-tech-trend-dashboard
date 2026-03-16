@@ -14,9 +14,12 @@ export async function fetchTechTrends(): Promise<TechTrendsResponse> {
 
 /**
  * REST API: GitHub Trending 목록 조회 (초기 데이터 — React Query)
+ * @param sort - 정렬 기준: stars(기본) | forks
  */
-export async function fetchTrendingRepos(): Promise<TrendingReposResponse> {
-  const res = await fetch(`${BASE_URL}/api/trending`);
+export async function fetchTrendingRepos(sort: "stars" | "forks" = "stars"): Promise<TrendingReposResponse> {
+  const path = `${BASE_URL}/api/trending`;
+  const url = path.includes("?") ? `${path}&sort=${sort}` : `${path}?sort=${sort}`;
+  const res = await fetch(url);
   if (!res.ok) {
     const errBody = await res.json().catch(() => ({})) as { error?: string };
     throw new Error(errBody.error ?? "Failed to fetch trending");
