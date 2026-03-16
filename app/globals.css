@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* 반응형: mobile(기본) | tablet: 640px+ | desktop: 1024px+ */
+@theme inline {
+  --breakpoint-tablet: 40rem;   /* 640px */
+  --breakpoint-desktop: 64rem;  /* 1024px */
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -22,5 +28,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
