@@ -2,6 +2,7 @@
 
 import { useStore } from "@/store";
 import type { ConnectionStatus } from "@/store";
+import * as s from "./ConnectionStatus.css";
 
 const labels: Record<ConnectionStatus, string> = {
   connecting: "연결 중...",
@@ -10,23 +11,26 @@ const labels: Record<ConnectionStatus, string> = {
   error: "오류",
 };
 
+function dotClass(status: ConnectionStatus): string {
+  switch (status) {
+    case "connected":
+      return s.dotConnected;
+    case "connecting":
+      return s.dotConnecting;
+    case "error":
+      return s.dotError;
+    default:
+      return s.dot;
+  }
+}
+
 export function ConnectionStatus() {
   const status = useStore((s) => s.connectionStatus);
   const label = labels[status];
 
   return (
-    <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-      <span
-        className={`h-2 w-2 rounded-full ${
-          status === "connected"
-            ? "bg-emerald-500"
-            : status === "connecting"
-              ? "animate-pulse bg-amber-500"
-              : status === "error"
-                ? "bg-rose-500"
-                : "bg-zinc-400"
-        }`}
-      />
+    <div className={s.root}>
+      <span className={`${s.dot} ${dotClass(status)}`} />
       {label}
     </div>
   );

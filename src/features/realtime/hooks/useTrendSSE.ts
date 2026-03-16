@@ -13,15 +13,17 @@ type TrendingQueryData = { repos: GitHubRepo[]; lastUpdated: string };
  * 실시간 업데이트: SSE 구독 → React Query 캐시 갱신 (polling 미사용)
  * - 초기 데이터는 useTrendingRepos(React Query)로 로드
  * - SSE 메시지 수신 시 동일 queryKey 캐시만 갱신하여 구독 중인 UI가 자동 반영
+ * - sort 변경 시 SSE URL이 바뀌어 해당 정렬 스트림으로 재구독
  */
 export function useTrendSSE() {
   const queryClient = useQueryClient();
   const setStatus = useStore((s) => s.setConnectionStatus);
+  const sort = useStore((s) => s.trendingSort);
 
   const handleMessage = useCallback(
     (event: SSETrendEvent) => {
       setStatus("connected");
-      queryClient.setQueryData<TrendingQueryData>(TRENDING_QUERY_KEY, (prev) => {
+      queryClient.setQueryData<TrendingQueryData>([...TRENDING_QUERY_KEY, sort], (prev) => {
         if (!prev) return prev; // 초기 fetch 완료 전에는 캐시 덮어쓰지 않음
         const nextUpdated = new Date().toISOString();
         const { type, payload } = event;
@@ -41,22 +43,25 @@ export function useTrendSSE() {
         return { ...prev, repos, lastUpdated: nextUpdated };
       });
     },
-    [queryClient, setStatus]
+    [queryClient, setStatus, sort]
   );
 
   useEffect(() => {
     setStatus("connecting");
 
-    const unsubscribe = subscribeTrendSSE({
-      onMessage: handleMessage,
-      onOpen: () => setStatus("connected"),
-      onError: () => setStatus("error"),
-      onClose: () => setStatus("disconnected"),
-    });
+    const unsubscribe = subscribeTrendSSE(
+      {
+        onMessage: handleMessage,
+        onOpen: () => setStatus("connected"),
+        onError: () => setStatus("error"),
+        onClose: () => setStatus("disconnected"),
+      },
+      { sort }
+    );
 
     return () => {
       unsubscribe();
       setStatus("disconnected");
     };
-  }, [handleMessage, setStatus]);
+  }, [handleMessage, setStatus, sort]);
 }

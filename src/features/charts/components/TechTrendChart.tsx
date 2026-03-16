@@ -21,18 +21,37 @@ interface TechTrendChartProps {
   title?: string;
 }
 
+const COUNT_LABEL = "저장소 수";
+
+import { colorVars } from "@/styles/theme.css";
+import * as chartStyles from "./TechTrendChart.css";
+
 /** UI 전용: Recharts — 기술 트렌드 차트 (TASK: 데이터 시각화) */
 export function TechTrendChart({ data, title = "기술 트렌드" }: TechTrendChartProps) {
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900 sm:p-4">
-      <h3 className="mb-2 text-sm font-medium text-zinc-700 sm:mb-3 dark:text-zinc-300">{title}</h3>
+    <div className={chartStyles.root}>
+      <h3 className={chartStyles.title}>{title}</h3>
+      <p className={chartStyles.description}>
+        트렌딩 목록 내 언어별 저장소 개수
+      </p>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" className="stroke-zinc-200 dark:stroke-zinc-700" />
-          <XAxis dataKey="tech" className="text-xs" />
-          <YAxis className="text-xs" />
-          <Tooltip />
-          <Bar dataKey="count" fill="var(--color-violet-500)" radius={[4, 4, 0, 0]} />
+          <CartesianGrid strokeDasharray="3 3" stroke={`var(${colorVars.zinc200})`} />
+          <XAxis dataKey="tech" tick={{ fontSize: 12 }} />
+          <YAxis
+            tick={{ fontSize: 12 }}
+            label={{
+              value: COUNT_LABEL,
+              angle: -90,
+              position: "insideLeft",
+              style: { textAnchor: "middle", fontSize: 12 },
+            }}
+          />
+          <Tooltip
+            formatter={(value) => [`${Number(value ?? 0)}개`, COUNT_LABEL]}
+            contentStyle={{ fontSize: 12 }}
+          />
+          <Bar dataKey="count" name={COUNT_LABEL} fill={`var(${colorVars.tossBlue})`} radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

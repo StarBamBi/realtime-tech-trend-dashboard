@@ -3,38 +3,53 @@
 import type { TechTrend } from "@/types";
 import { formatScoreChange } from "@/utils";
 import { Card, CardHeader, CardTitle } from "@/components";
+import * as s from "./TrendList.css";
 
 interface TrendListProps {
   trends: TechTrend[];
   title?: string;
 }
 
+function RankBadge({ rank }: { rank: 1 | 2 | 3 }) {
+  const rankClass = rank === 1 ? s.rank1 : rank === 2 ? s.rank2 : s.rank3;
+  return (
+    <span className={rankClass} aria-label={`${rank}등`}>
+      {rank}
+    </span>
+  );
+}
+
+/** 기술 트렌드 목록. 1·2·3등 뱃지로 순위 구분 */
 export function TrendList({ trends, title = "기술 트렌드" }: TrendListProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
-      <ul className="space-y-2">
-        {trends.map((t) => (
-          <li
-            key={t.id}
-            className="flex items-center justify-between rounded-md border border-zinc-100 px-3 py-2 dark:border-zinc-800"
-          >
-            <div>
-              <span className="font-medium text-zinc-900 dark:text-zinc-100">{t.name}</span>
-              <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">{t.category}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-mono text-zinc-700 dark:text-zinc-300">{t.score}</span>
-              <span
-                className={`text-sm ${t.change >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}
-              >
-                {formatScoreChange(t.change)}
-              </span>
-            </div>
-          </li>
-        ))}
+      <ul className={s.list}>
+        {trends.map((t, index) => {
+          const rank = (index + 1) as 1 | 2 | 3;
+          const isTopThree = index < 3;
+          return (
+            <li key={t.id} className={isTopThree ? `${s.item} ${s.itemWithRank}` : s.item}>
+              {isTopThree && <RankBadge rank={rank} />}
+              <div className={s.itemLeft}>
+                <span className={s.itemName}>{t.name}</span>
+                <span className={s.itemCategory}>{t.category}</span>
+              </div>
+              <div className={s.itemRight}>
+                <span className={s.itemScore}>{t.score}</span>
+                <span
+                  className={
+                    t.change >= 0 ? s.itemChangePositive : s.itemChangeNegative
+                  }
+                >
+                  {formatScoreChange(t.change)}
+                </span>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </Card>
   );
